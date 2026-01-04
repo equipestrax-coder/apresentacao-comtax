@@ -1,0 +1,1194 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STRAX360 - Estruturação Organizacional ComTax</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            font-size: 42px;
+            font-weight: 800;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .header p {
+            font-size: 20px;
+            opacity: 0.95;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            background: white;
+            padding: 10px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 15px 20px;
+            background: #f5f5f5;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .tab:hover {
+            background: #e0e0e0;
+        }
+        
+        .tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        
+        .content {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            display: none;
+        }
+        
+        .content.active {
+            display: block;
+        }
+        
+        /* TAB 1: Organograma */
+        .org-controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+        
+        .control-group {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .control-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .control-group input,
+        .control-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 15px;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #333;
+        }
+        
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+        
+        .btn-danger {
+            background: #ff4757;
+            color: white;
+        }
+        
+        .org-chart {
+            background: #f9f9f9;
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            padding: 30px;
+            min-height: 400px;
+        }
+        
+        .org-level {
+            margin-bottom: 30px;
+        }
+        
+        .level-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: #666;
+            text-transform: uppercase;
+            margin-bottom: 15px;
+            letter-spacing: 1px;
+        }
+        
+        .positions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        
+        .position-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            padding-top: 35px;
+            min-width: 180px;
+            position: relative;
+            transition: all 0.3s;
+        }
+        
+        .position-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+        }
+        
+        .position-name {
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+        
+        .position-area {
+            font-size: 12px;
+            color: #7f8c8d;
+            margin-bottom: 8px;
+        }
+        
+        .position-count {
+            font-size: 13px;
+            color: #3498db;
+            font-weight: 600;
+        }
+        
+        .position-salary {
+            font-size: 13px;
+            color: #27ae60;
+            font-weight: 600;
+            margin-top: 5px;
+        }
+        
+        .card-actions {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            display: none;
+            gap: 5px;
+        }
+        
+        .position-card:hover .card-actions {
+            display: flex;
+        }
+        
+        .action-btn {
+            width: 26px;
+            height: 26px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            line-height: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        
+        .edit-btn {
+            background: #3498db;
+            color: white;
+        }
+        
+        .edit-btn:hover {
+            background: #2980b9;
+            transform: scale(1.1);
+        }
+        
+        .copy-btn {
+            background: #f39c12;
+            color: white;
+        }
+        
+        .copy-btn:hover {
+            background: #e67e22;
+            transform: scale(1.1);
+        }
+        
+        .delete-btn {
+            background: #ff4757;
+            color: white;
+        }
+        
+        .delete-btn:hover {
+            background: #ee5a6f;
+            transform: scale(1.1);
+        }
+        
+        /* TAB 3: Folha de Pagamento */
+        .payroll-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        
+        .payroll-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+        }
+        
+        .payroll-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .payroll-table tr:hover {
+            background: #f9f9f9;
+        }
+        
+        .payroll-table .num-col {
+            text-align: center;
+            color: #999;
+            font-weight: 600;
+        }
+        
+        .payroll-table .currency {
+            text-align: right;
+            font-family: 'Courier New', monospace;
+            font-weight: 600;
+        }
+        
+        .payroll-table .currency.salary {
+            color: #3498db;
+        }
+        
+        .payroll-table .currency.cost {
+            color: #27ae60;
+        }
+        
+        .subtotal-row {
+            background: #f0f7ff !important;
+            font-weight: 700;
+        }
+        
+        .subtotal-row td {
+            border-top: 2px solid #667eea;
+            border-bottom: 2px solid #667eea;
+            padding: 12px;
+        }
+        
+        .total-row {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+            color: white !important;
+            font-weight: 800;
+        }
+        
+        .total-row td {
+            border: none;
+            padding: 15px 12px;
+            font-size: 16px;
+        }
+        
+        /* TAB 2: Simulador */
+        .simulator {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+        
+        .sim-panel {
+            background: #f9f9f9;
+            padding: 25px;
+            border-radius: 8px;
+        }
+        
+        .sim-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+        
+        .sim-item {
+            margin-bottom: 20px;
+        }
+        
+        .sim-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        
+        .sim-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+        
+        .summary-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        
+        .summary-label {
+            font-size: 13px;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+        
+        .summary-value {
+            font-size: 32px;
+            font-weight: 700;
+        }
+        
+        /* TAB 3: Fases */
+        .phases {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .phase-option {
+            flex: 1;
+            background: #f9f9f9;
+            border: 3px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .phase-option:hover {
+            border-color: #667eea;
+        }
+        
+        .phase-option.selected {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+        }
+        
+        .phase-badge {
+            display: inline-block;
+            background: #ff6b6b;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+        
+        .phase-option.selected .phase-badge {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .phase-title {
+            font-size: 24px;
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+        
+        .phase-price {
+            font-size: 36px;
+            font-weight: 900;
+            margin: 15px 0;
+        }
+        
+        .phase-features {
+            list-style: none;
+            margin-top: 15px;
+        }
+        
+        .phase-features li {
+            padding: 8px 0;
+            padding-left: 25px;
+            position: relative;
+            font-size: 14px;
+        }
+        
+        .phase-features li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            font-weight: 700;
+        }
+        
+        .modules-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .module-card {
+            background: #f9f9f9;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            border-radius: 6px;
+        }
+        
+        .module-number {
+            display: inline-block;
+            width: 32px;
+            height: 32px;
+            background: #667eea;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 32px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        
+        .module-name {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #2c3e50;
+        }
+        
+        .module-time {
+            font-size: 13px;
+            color: #7f8c8d;
+            margin-bottom: 10px;
+        }
+        
+        .module-desc {
+            font-size: 14px;
+            color: #5a6c7d;
+            line-height: 1.6;
+        }
+        
+        @media (max-width: 768px) {
+            .simulator {
+                grid-template-columns: 1fr;
+            }
+            
+            .phases {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 ESTRUTURAÇÃO ORGANIZACIONAL</h1>
+            <p>Apresentação Interativa - Comtax</p>
+        </div>
+        
+        <div class="tabs">
+            <button class="tab active" onclick="showTab(1)">🏢 Organograma Interativo</button>
+            <button class="tab" onclick="showTab(2)">💰 Simulador de Custos</button>
+            <button class="tab" onclick="showTab(3)">📊 Folha de Pagamento</button>
+            <button class="tab" onclick="showTab(4)">📋 Fases do Projeto</button>
+        </div>
+        
+        <!-- TAB 1: Organograma -->
+        <div id="tab1" class="content active">
+            <h2 style="margin-bottom: 20px; color: #2c3e50;">Monte sua Estrutura Organizacional</h2>
+            
+            <div class="org-controls">
+                <div class="control-group">
+                    <label>Nome do Cargo/Função</label>
+                    <input type="text" id="positionName" placeholder="Ex: Especialista Tributário">
+                </div>
+                <div class="control-group">
+                    <label>Área</label>
+                    <select id="positionArea">
+                        <option value="">Selecione...</option>
+                        <option value="Diretoria">Diretoria</option>
+                        <option value="Projetos">Projetos</option>
+                        <option value="Consultoria">Consultoria</option>
+                        <option value="Vendas">Vendas</option>
+                        <option value="Administração">Administração</option>
+                        <option value="Customer Success">Customer Success</option>
+                        <option value="Marketing">Marketing</option>
+                        <option value="Inovação">Inovação</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label>Nº de Pessoas</label>
+                    <input type="number" id="positionCount" min="1" value="1">
+                </div>
+                <div class="control-group">
+                    <label>Salário Base (R$)</label>
+                    <input type="number" id="positionBaseSalary" min="0" step="1000" value="6000" placeholder="Apenas salário">
+                </div>
+                <div class="control-group">
+                    <label>Custo Mensal Total (R$)</label>
+                    <input type="number" id="positionTotalCost" min="0" step="1000" value="8000" placeholder="Salário + encargos + benefícios">
+                </div>
+                <div class="control-group" style="display: flex; align-items: flex-end; gap: 10px; flex-wrap: wrap;">
+                    <button class="btn btn-primary" onclick="addPosition()">➕ Adicionar</button>
+                    <button class="btn btn-secondary" onclick="loadComtaxDefault()">🔄 Carregar Comtax</button>
+                    <label class="btn btn-secondary" style="margin: 0; cursor: pointer;">
+                        📁 Importar CSV
+                        <input type="file" id="csvInput" accept=".csv" style="display: none;" onchange="importCSV(event)">
+                    </label>
+                </div>
+            </div>
+            
+            <div style="margin-bottom: 15px; padding: 15px; background: #f0f7ff; border-radius: 6px; font-size: 13px;">
+                <strong>💡 Formato do CSV:</strong> nome do cargo,area,quantidade de pessoas,salario base,custo mensal total
+                <br>Exemplo: <code>Especialista Tributário,Consultoria,20,7000,10000</code>
+            </div>
+            
+            <div class="org-chart" id="orgChart">
+                <div style="text-align: center; padding: 100px; color: #999;">
+                    <p style="font-size: 18px; margin-bottom: 10px;">👆 Adicione cargos acima ou</p>
+                    <button class="btn btn-primary" onclick="loadComtaxDefault()">Carregar Estrutura Comtax</button>
+                </div>
+            </div>
+            
+            <div id="costSummary" style="display: none; margin-top: 25px; padding: 25px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; color: white;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+                    <div>
+                        <div style="font-size: 13px; opacity: 0.9; margin-bottom: 5px;">Total de Pessoas</div>
+                        <div style="font-size: 32px; font-weight: 700;" id="totalPeople">0</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 13px; opacity: 0.9; margin-bottom: 5px;">Custo Mensal Total</div>
+                        <div style="font-size: 32px; font-weight: 700;" id="totalMonthlyCost">R$ 0</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 13px; opacity: 0.9; margin-bottom: 5px;">Custo Anual</div>
+                        <div style="font-size: 32px; font-weight: 700;" id="totalAnnualCost">R$ 0</div>
+                    </div>
+                </div>
+                <div style="margin-top: 20px; text-align: center;">
+                    <button class="btn btn-secondary" onclick="calculateCosts()" style="background: rgba(255,255,255,0.2); color: white; border: 2px solid white;">
+                        🔄 Recalcular Custos
+                    </button>
+                </div>
+            </div>
+            
+            <div style="margin-top: 20px; text-align: right;">
+                <button class="btn btn-danger" onclick="clearAll()">🗑️ Limpar Tudo</button>
+            </div>
+        </div>
+        
+        <!-- TAB 2: Simulador -->
+        <div id="tab2" class="content">
+            <h2 style="margin-bottom: 20px; color: #2c3e50;">Simulador de Impacto Financeiro</h2>
+            
+            <div class="simulator">
+                <div class="sim-panel">
+                    <div class="sim-title">Cenário Atual</div>
+                    
+                    <div class="sim-item">
+                        <div class="sim-label">Total de Prestadores PJ</div>
+                        <input type="number" class="sim-input" id="simTotalPeople" value="72" oninput="updateSimulation()">
+                    </div>
+                    
+                    <div class="sim-item">
+                        <div class="sim-label">Massa Salarial Mensal Atual (R$)</div>
+                        <input type="number" class="sim-input" id="simCurrentMass" value="576000" step="10000" oninput="updateSimulation()">
+                    </div>
+                    
+                    <div class="sim-item">
+                        <div class="sim-label">% de Discrepância Estimada</div>
+                        <input type="number" class="sim-input" id="simDiscrepancy" value="25" min="0" max="100" oninput="updateSimulation()">
+                        <small style="color: #666; font-size: 12px;">Diferença entre maior e menor salário da mesma função</small>
+                    </div>
+                </div>
+                
+                <div class="sim-panel">
+                    <div class="sim-title">Impacto da Estruturação</div>
+                    
+                    <div class="summary-card">
+                        <div class="summary-label">Pessoas Fora da Faixa (estimado)</div>
+                        <div class="summary-value" id="outOfRange">0</div>
+                    </div>
+                    
+                    <div class="summary-card" style="background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);">
+                        <div class="summary-label">Custo de Adequação Mensal</div>
+                        <div class="summary-value" id="adjustmentCost">R$ 0</div>
+                    </div>
+                    
+                    <div class="summary-card" style="background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);">
+                        <div class="summary-label">ROI: Redução de Turnover Estimada</div>
+                        <div class="summary-value" id="roiSavings">R$ 0/ano</div>
+                        <small style="opacity: 0.9; font-size: 13px;">Base: cada saída custa 3-6 meses de salário</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- TAB 3: Folha de Pagamento -->
+        <div id="tab3" class="content">
+            <h2 style="margin-bottom: 20px; color: #2c3e50;">Folha de Pagamento Analítica</h2>
+            
+            <div id="payrollTable" style="overflow-x: auto;">
+                <div style="text-align: center; padding: 100px; color: #999;">
+                    <p style="font-size: 18px;">📋 Adicione cargos na Aba 1 para gerar a folha de pagamento</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- TAB 4: Fases -->
+        <div id="tab4" class="content">
+            <h2 style="margin-bottom: 20px; color: #2c3e50;">Escolha sua Experiência</h2>
+            
+            <div class="phases">
+                <div class="phase-option" onclick="selectPhase('basico')">
+                    <div class="phase-badge">Entrada</div>
+                    <div class="phase-title">📦 Pacote Básico</div>
+                    <div class="phase-price" style="font-size: 24px; color: #667eea;">Sob Consulta</div>
+                    <ul class="phase-features">
+                        <li>Diagnóstico + Riscos PJ</li>
+                        <li>Descrições de Funções</li>
+                        <li>Pesquisa Salarial</li>
+                        <li>Grade de Honorários</li>
+                    </ul>
+                    <div style="margin-top: 15px; font-size: 13px; opacity: 0.8;">
+                        ⏱️ 7 semanas
+                    </div>
+                </div>
+                
+                <div class="phase-option selected" onclick="selectPhase('completo')">
+                    <div class="phase-badge">Recomendado</div>
+                    <div class="phase-title">🚀 Experiência Completa</div>
+                    <div class="phase-price" style="font-size: 24px; color: #667eea;">Sob Consulta</div>
+                    <ul class="phase-features">
+                        <li>TUDO do Básico +</li>
+                        <li>Política de Evolução</li>
+                        <li>Indicadores de Performance</li>
+                        <li>Remuneração Variável (PLR)</li>
+                        <li>Auditoria Contratos PJ</li>
+                        <li>Estruturação CS/Marketing</li>
+                    </ul>
+                    <div style="margin-top: 15px; font-size: 13px; opacity: 0.8;">
+                        ⏱️ 12-14 semanas
+                    </div>
+                </div>
+            </div>
+            
+            <h3 style="margin: 40px 0 20px; color: #2c3e50;">Detalhamento dos Módulos</h3>
+            
+            <div class="modules-grid">
+                <div class="module-card">
+                    <div class="module-number">1</div>
+                    <div class="module-name">Diagnóstico Organizacional</div>
+                    <div class="module-time">⏱️ 1.5 semanas</div>
+                    <div class="module-desc">
+                        Análise completa da estrutura, mapeamento de riscos trabalhistas PJ, identificação de gaps estratégicos.
+                        <br><br><strong>Entrega:</strong> Relatório executivo + Mapa de riscos
+                    </div>
+                </div>
+                
+                <div class="module-card">
+                    <div class="module-number">2</div>
+                    <div class="module-name">Descrições de Funções</div>
+                    <div class="module-time">⏱️ 2.5 semanas</div>
+                    <div class="module-desc">
+                        Estruturação de "escopos de trabalho" (não cargos CLT), responsabilidades, competências, indicadores.
+                        <br><br><strong>Entrega:</strong> Manual de funções + Matriz RACI
+                    </div>
+                </div>
+                
+                <div class="module-card">
+                    <div class="module-number">3</div>
+                    <div class="module-name">Pesquisa Salarial</div>
+                    <div class="module-time">⏱️ 1.5 semanas</div>
+                    <div class="module-desc">
+                        Benchmarking específico para consultoria tributária: Catho, Robert Half, Big 4, concorrentes.
+                        <br><br><strong>Entrega:</strong> Relatório de mercado + Simulador
+                    </div>
+                </div>
+                
+                <div class="module-card">
+                    <div class="module-number">4</div>
+                    <div class="module-name">Grade + Enquadramento</div>
+                    <div class="module-time">⏱️ 2 semanas</div>
+                    <div class="module-desc">
+                        Estrutura de níveis, faixas de honorários, enquadramento dos 72 prestadores, plano de adequação.
+                        <br><br><strong>Entrega:</strong> Grade completa + Impacto financeiro
+                    </div>
+                </div>
+                
+                <div class="module-card">
+                    <div class="module-number">5</div>
+                    <div class="module-name">Política de Evolução</div>
+                    <div class="module-time">⏱️ 1 semana</div>
+                    <div class="module-desc">
+                        Critérios objetivos para evolução, processo de avaliação, governança (sem subordinação CLT).
+                        <br><br><strong>Entrega:</strong> Política formalizada + Ferramentas
+                    </div>
+                </div>
+                
+                <div class="module-card">
+                    <div class="module-number">6</div>
+                    <div class="module-name">Indicadores & Performance</div>
+                    <div class="module-time">⏱️ 1.5 semanas</div>
+                    <div class="module-desc">
+                        KPIs por função, sistema de avaliação 360º, dashboard de acompanhamento.
+                        <br><br><strong>Entrega:</strong> Manual de indicadores + Dashboard
+                    </div>
+                </div>
+                
+                <div class="module-card">
+                    <div class="module-number">7</div>
+                    <div class="module-name">Remuneração Variável</div>
+                    <div class="module-time">⏱️ 2 semanas</div>
+                    <div class="module-desc">
+                        Bônus por projeto, PLR (participação nos resultados), indicadores, régua de pagamento.
+                        <br><br><strong>Entrega:</strong> Política + Simuladores + Manual
+                    </div>
+                </div>
+                
+                <div class="module-card">
+                    <div class="module-number">8</div>
+                    <div class="module-name">Auditoria Contratos PJ</div>
+                    <div class="module-time">⏱️ 1.5 semanas</div>
+                    <div class="module-desc">
+                        Análise jurídica dos contratos atuais, identificação de riscos, minutas blindadas.
+                        <br><br><strong>Entrega:</strong> Parecer jurídico + Minutas
+                    </div>
+                </div>
+            </div>
+            
+            <div style="margin-top: 40px; padding: 25px; background: #f0f7ff; border-left: 4px solid #667eea; border-radius: 6px;">
+                <h4 style="color: #2c3e50; margin-bottom: 10px;">💡 Módulos Adicionais Disponíveis</h4>
+                <ul style="list-style: none; padding-left: 0;">
+                    <li style="padding: 5px 0;">✓ Stock Options / Phantom Shares</li>
+                    <li style="padding: 5px 0;">✓ Estruturação Customer Success</li>
+                    <li style="padding: 5px 0;">✓ Método de R&S Especializado</li>
+                    <li style="padding: 5px 0;">✓ Capacitação de Liderança</li>
+                    <li style="padding: 5px 0;">✓ Consultoria Jurídica Mensal (Retainer)</li>
+                </ul>
+                <p style="margin-top: 15px; font-size: 14px; color: #666;">Valores sob consulta conforme escopo específico da Comtax</p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let positions = [];
+        let editingIndex = -1;
+        
+        // Ordem das áreas (Diretoria primeiro)
+        const areaOrder = {
+            'Diretoria': 1,
+            'Projetos': 2,
+            'Consultoria': 3,
+            'Vendas': 4,
+            'Customer Success': 5,
+            'Marketing': 6,
+            'Inovação': 7,
+            'Administração': 8
+        };
+        
+        function showTab(tabNumber) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.content').forEach(content => content.classList.remove('active'));
+            document.querySelectorAll('.tab')[tabNumber - 1].classList.add('active');
+            document.getElementById('tab' + tabNumber).classList.add('active');
+            
+            if (tabNumber === 3) {
+                renderPayrollTable();
+            }
+        }
+        
+        function addPosition() {
+            const name = document.getElementById('positionName').value;
+            const area = document.getElementById('positionArea').value;
+            const count = parseInt(document.getElementById('positionCount').value) || 1;
+            const baseSalary = parseInt(document.getElementById('positionBaseSalary').value) || 0;
+            const totalCost = parseInt(document.getElementById('positionTotalCost').value) || 0;
+            
+            if (!name || !area) {
+                alert('Por favor, preencha nome e área!');
+                return;
+            }
+            
+            if (editingIndex >= 0) {
+                positions[editingIndex] = { name, area, count, baseSalary, totalCost };
+                editingIndex = -1;
+                document.querySelector('.btn-primary').textContent = '➕ Adicionar';
+            } else {
+                positions.push({ name, area, count, baseSalary, totalCost });
+            }
+            
+            renderOrgChart();
+            clearForm();
+        }
+        
+        function clearForm() {
+            document.getElementById('positionName').value = '';
+            document.getElementById('positionArea').value = '';
+            document.getElementById('positionCount').value = '1';
+            document.getElementById('positionBaseSalary').value = '6000';
+            document.getElementById('positionTotalCost').value = '8000';
+        }
+        
+        function editPosition(index) {
+            const pos = positions[index];
+            document.getElementById('positionName').value = pos.name;
+            document.getElementById('positionArea').value = pos.area;
+            document.getElementById('positionCount').value = pos.count;
+            document.getElementById('positionBaseSalary').value = pos.baseSalary;
+            document.getElementById('positionTotalCost').value = pos.totalCost;
+            editingIndex = index;
+            document.querySelector('.btn-primary').textContent = '💾 Salvar Edição';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        function copyPosition(index) {
+            const pos = { ...positions[index] };
+            pos.name = pos.name + ' (Cópia)';
+            positions.push(pos);
+            renderOrgChart();
+        }
+        
+        function removePosition(index) {
+            if (confirm('Tem certeza que deseja excluir este cargo?')) {
+                positions.splice(index, 1);
+                renderOrgChart();
+            }
+        }
+        
+        function calculateCosts() {
+            let totalPeople = 0;
+            let totalBaseSalary = 0;
+            let totalMonthlyCost = 0;
+            
+            positions.forEach(pos => {
+                totalPeople += pos.count;
+                totalBaseSalary += pos.count * pos.baseSalary;
+                totalMonthlyCost += pos.count * pos.totalCost;
+            });
+            
+            const totalAnnualCost = totalMonthlyCost * 12;
+            
+            document.getElementById('totalPeople').textContent = totalPeople;
+            document.getElementById('totalMonthlyCost').textContent = 
+                'R$ ' + totalMonthlyCost.toLocaleString('pt-BR');
+            document.getElementById('totalAnnualCost').textContent = 
+                'R$ ' + totalAnnualCost.toLocaleString('pt-BR');
+            
+            document.getElementById('costSummary').style.display = 'block';
+        }
+        
+        function renderOrgChart() {
+            const orgChart = document.getElementById('orgChart');
+            
+            if (positions.length === 0) {
+                orgChart.innerHTML = `
+                    <div style="text-align: center; padding: 100px; color: #999;">
+                        <p style="font-size: 18px; margin-bottom: 10px;">👆 Adicione cargos acima ou</p>
+                        <button class="btn btn-primary" onclick="loadComtaxDefault()">Carregar Estrutura Comtax</button>
+                    </div>
+                `;
+                document.getElementById('costSummary').style.display = 'none';
+                return;
+            }
+            
+            // Ordenar por área (Diretoria primeiro)
+            const grouped = positions.reduce((acc, pos) => {
+                if (!acc[pos.area]) acc[pos.area] = [];
+                acc[pos.area].push(pos);
+                return acc;
+            }, {});
+            
+            const sortedAreas = Object.keys(grouped).sort((a, b) => {
+                return (areaOrder[a] || 99) - (areaOrder[b] || 99);
+            });
+            
+            let html = '';
+            for (const area of sortedAreas) {
+                const areaPositions = grouped[area];
+                html += `
+                    <div class="org-level">
+                        <div class="level-title">${area}</div>
+                        <div class="positions">
+                `;
+                
+                areaPositions.forEach((pos) => {
+                    const globalIdx = positions.indexOf(pos);
+                    html += `
+                        <div class="position-card">
+                            <div class="card-actions">
+                                <button class="action-btn edit-btn" onclick="editPosition(${globalIdx})" title="Editar">✏️</button>
+                                <button class="action-btn copy-btn" onclick="copyPosition(${globalIdx})" title="Copiar">📋</button>
+                                <button class="action-btn delete-btn" onclick="removePosition(${globalIdx})" title="Excluir">🗑️</button>
+                            </div>
+                            <div class="position-name">${pos.name}</div>
+                            <div class="position-area">${pos.area}</div>
+                            <div class="position-count">${pos.count} pessoa(s)</div>
+                            <div class="position-salary">R$ ${pos.totalCost.toLocaleString('pt-BR')}/mês</div>
+                        </div>
+                    `;
+                });
+                
+                html += '</div></div>';
+            }
+            
+            orgChart.innerHTML = html;
+            calculateCosts();
+        }
+        
+        function renderPayrollTable() {
+            const payrollDiv = document.getElementById('payrollTable');
+            
+            if (positions.length === 0) {
+                payrollDiv.innerHTML = `
+                    <div style="text-align: center; padding: 100px; color: #999;">
+                        <p style="font-size: 18px;">📋 Adicione cargos na Aba 1 para gerar a folha de pagamento</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Ordenar por área
+            const grouped = positions.reduce((acc, pos) => {
+                if (!acc[pos.area]) acc[pos.area] = [];
+                acc[pos.area].push(pos);
+                return acc;
+            }, {});
+            
+            const sortedAreas = Object.keys(grouped).sort((a, b) => {
+                return (areaOrder[a] || 99) - (areaOrder[b] || 99);
+            });
+            
+            let html = '<table class="payroll-table">';
+            html += `
+                <thead>
+                    <tr>
+                        <th style="width: 60px;">#</th>
+                        <th>Área</th>
+                        <th>Cargo</th>
+                        <th style="width: 150px; text-align: right;">Salário Base</th>
+                        <th style="width: 150px; text-align: right;">Custo Mensal</th>
+                    </tr>
+                </thead>
+                <tbody>
+            `;
+            
+            let employeeNumber = 1;
+            let grandTotalPeople = 0;
+            let grandTotalSalary = 0;
+            let grandTotalCost = 0;
+            
+            for (const area of sortedAreas) {
+                const areaPositions = grouped[area];
+                let areaTotalPeople = 0;
+                let areaTotalSalary = 0;
+                let areaTotalCost = 0;
+                
+                areaPositions.forEach(pos => {
+                    for (let i = 0; i < pos.count; i++) {
+                        html += `
+                            <tr>
+                                <td class="num-col">${employeeNumber}</td>
+                                <td>${area}</td>
+                                <td>${pos.name}</td>
+                                <td class="currency salary">R$ ${pos.baseSalary.toLocaleString('pt-BR')}</td>
+                                <td class="currency cost">R$ ${pos.totalCost.toLocaleString('pt-BR')}</td>
+                            </tr>
+                        `;
+                        employeeNumber++;
+                        areaTotalPeople++;
+                        areaTotalSalary += pos.baseSalary;
+                        areaTotalCost += pos.totalCost;
+                    }
+                });
+                
+                grandTotalPeople += areaTotalPeople;
+                grandTotalSalary += areaTotalSalary;
+                grandTotalCost += areaTotalCost;
+                
+                html += `
+                    <tr class="subtotal-row">
+                        <td colspan="2"><strong>Subtotal ${area}</strong></td>
+                        <td style="text-align: right;">${areaTotalPeople} pessoa(s)</td>
+                        <td class="currency salary">R$ ${areaTotalSalary.toLocaleString('pt-BR')}</td>
+                        <td class="currency cost">R$ ${areaTotalCost.toLocaleString('pt-BR')}</td>
+                    </tr>
+                `;
+            }
+            
+            html += `
+                <tr class="total-row">
+                    <td colspan="2"><strong>TOTAL GERAL</strong></td>
+                    <td style="text-align: right;"><strong>${grandTotalPeople} pessoa(s)</strong></td>
+                    <td style="text-align: right;"><strong>R$ ${grandTotalSalary.toLocaleString('pt-BR')}</strong></td>
+                    <td style="text-align: right;"><strong>R$ ${grandTotalCost.toLocaleString('pt-BR')}</strong></td>
+                </tr>
+            `;
+            
+            html += '</tbody></table>';
+            
+            html += `
+                <div style="margin-top: 20px; padding: 20px; background: #f0f7ff; border-radius: 8px;">
+                    <h4 style="margin-bottom: 10px; color: #2c3e50;">💡 Legenda:</h4>
+                    <ul style="list-style: none; padding: 0; font-size: 14px;">
+                        <li style="margin: 5px 0;"><strong>Salário Base:</strong> Remuneração bruta do prestador</li>
+                        <li style="margin: 5px 0;"><strong>Custo Mensal:</strong> Salário + Encargos + Benefícios</li>
+                        <li style="margin: 5px 0;"><strong>Custo Anual:</strong> R$ ${(grandTotalCost * 12).toLocaleString('pt-BR')}</li>
+                    </ul>
+                </div>
+            `;
+            
+            payrollDiv.innerHTML = html;
+        }
+        
+        function importCSV(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const text = e.target.result;
+                const lines = text.split('\n');
+                
+                let imported = 0;
+                lines.forEach(line => {
+                    line = line.trim();
+                    if (!line) return;
+                    
+                    const parts = line.split(',');
+                    if (parts.length !== 5) return;
+                    
+                    const [name, area, count, baseSalary, totalCost] = parts;
+                    positions.push({
+                        name: name.trim(),
+                        area: area.trim(),
+                        count: parseInt(count.trim()) || 1,
+                        baseSalary: parseInt(baseSalary.trim()) || 0,
+                        totalCost: parseInt(totalCost.trim()) || 0
+                    });
+                    imported++;
+                });
+                
+                if (imported > 0) {
+                    renderOrgChart();
+                    alert(`✅ ${imported} cargo(s) importado(s) com sucesso!`);
+                } else {
+                    alert('❌ Nenhum cargo válido encontrado no CSV. Verifique o formato.');
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        }
+        
+        function loadComtaxDefault() {
+            positions = [
+                { name: 'Sócio Diretor', area: 'Diretoria', count: 3, baseSalary: 20000, totalCost: 25000 },
+                { name: 'Gerente de Projetos', area: 'Projetos', count: 5, baseSalary: 12000, totalCost: 15000 },
+                { name: 'Coordenador de Equipe', area: 'Projetos', count: 8, baseSalary: 9000, totalCost: 12000 },
+                { name: 'Especialista Tributário', area: 'Consultoria', count: 20, baseSalary: 7000, totalCost: 10000 },
+                { name: 'Analista Especialista', area: 'Consultoria', count: 15, baseSalary: 5000, totalCost: 7000 },
+                { name: 'Analista Operacional', area: 'Consultoria', count: 12, baseSalary: 3500, totalCost: 5000 },
+                { name: 'Consultor de Vendas', area: 'Vendas', count: 4, baseSalary: 6000, totalCost: 8000 },
+                { name: 'Analista Financeiro', area: 'Administração', count: 2, baseSalary: 4500, totalCost: 6000 },
+                { name: 'Analista de RH', area: 'Administração', count: 2, baseSalary: 4000, totalCost: 5500 },
+                { name: 'Assistente Administrativo', area: 'Administração', count: 1, baseSalary: 3000, totalCost: 4000 }
+            ];
+            renderOrgChart();
+        }
+        
+        function clearAll() {
+            if (confirm('Tem certeza que deseja limpar tudo?')) {
+                positions = [];
+                editingIndex = -1;
+                document.querySelector('.btn-primary').textContent = '➕ Adicionar';
+                clearForm();
+                renderOrgChart();
+            }
+        }
+        
+        function updateSimulation() {
+            const totalPeople = parseInt(document.getElementById('simTotalPeople').value) || 72;
+            const currentMass = parseInt(document.getElementById('simCurrentMass').value) || 576000;
+            const discrepancy = parseInt(document.getElementById('simDiscrepancy').value) || 25;
+            
+            const outOfRange = Math.round(totalPeople * (discrepancy / 100));
+            const adjustmentCost = Math.round(currentMass * (discrepancy / 200));
+            const avgSalary = currentMass / totalPeople;
+            const turnoverCost = avgSalary * 4;
+            const currentTurnover = Math.round(totalPeople * 0.15);
+            const reducedTurnover = Math.round(currentTurnover * 0.3);
+            const roiSavings = reducedTurnover * turnoverCost;
+            
+            document.getElementById('outOfRange').textContent = outOfRange;
+            document.getElementById('adjustmentCost').textContent = 
+                'R$ ' + adjustmentCost.toLocaleString('pt-BR');
+            document.getElementById('roiSavings').textContent = 
+                'R$ ' + Math.round(roiSavings).toLocaleString('pt-BR');
+        }
+        
+        function selectPhase(phase) {
+            document.querySelectorAll('.phase-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            event.currentTarget.classList.add('selected');
+        }
+        
+        updateSimulation();
+    </script>
+</body>
+</html>
